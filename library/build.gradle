@@ -27,16 +27,11 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
-configurations {
-    javadocDeps
-}
-
 dependencies {
-     repositories {
+    repositories {
         mavenCentral()
     }
     compile 'com.android.support:support-annotations:24.0.0'
-    javadocDeps 'com.android.support:support-annotations:24.0.0'
     compile 'com.android.support:support-v4:24.0.0'
 }
 
@@ -45,20 +40,22 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
-        versionName String.valueOf(parseVersionName())
         versionCode Integer.parseInt(VERSION_CODE)
         targetSdkVersion Integer.parseInt(TARGET_SDK)
         minSdkVersion Integer.parseInt(MIN_SDK_LIBRARY)
     }
 }
 
-def parseVersionName() {
-    if (project.hasProperty('versionName')) {
-        return versionName
-    } else {
-        println("No version name supplied, using default")
-        return "0"
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file:///"+System.getenv('HOME') + ".m2/repository/")
+            pom.groupId = GROUP
+            pom.artifactId = POM_ARTIFACT_ID
+            pom.version = VERSION_NAME
+        }
     }
 }
+task install(dependsOn: uploadArchives)
 
-apply from: 'gradle-mvn-push.gradle'
+
